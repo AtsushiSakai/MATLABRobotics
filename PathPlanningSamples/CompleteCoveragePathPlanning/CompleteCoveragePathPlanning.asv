@@ -1,0 +1,247 @@
+function [] = CompleteCoveragePathPlanning()
+%COMPLETECOVERAGEPATHPLANNING 
+
+clear all;
+close all;
+disp('CompleteCoveragePathPlanning start!!');
+
+%パラメータ
+p.start=[1,1];
+p.goal=[10,10];
+p.XYMAX=11;
+
+%Mapの初期化　Unknown=inf
+map=zeros(p.XYMAX,p.XYMAX)+inf;
+%ゴールをコスト0に設定
+map(p.goal(1),p.goal(2))=0;
+
+%境界データの取得
+p=GetBoundary(p);
+
+%MapをDistance transform
+%map=DistanceTransform(map,p);
+
+%Obstacle Transform
+obmap=ObstacleTransform(map,p);
+
+while(1)
+    maptmp=map;%参照用にコピー
+    for ix=1:p.XYMAX
+        for iy=1:p.XYMAX
+            for incx=-1:1
+                for incy=-1:1
+                    %参照先のグリッドのインデックス
+                    indx=ix+incx;
+                    indy=iy+incy;
+                    
+                    %自分自身を参照していたらスキップ
+                    if (incx==0)&&(incy==0) continue;end
+                    
+                    %インデックスがオーバフローしたらスキップ
+                    if(indx<=0||indx>p.XYMAX) continue;end
+                    if(indy<=0||indy>p.XYMAX) continue;end
+                    
+                    %カレントグリットがinfで目標のグリットがinf以外の場合
+                    if maptmp(indx,indy)~=inf
+                        map(ix,iy)=maptmp(indx,indy)+1+10*obmap(ix,iy);
+                    end
+                end
+            end
+        end
+    end
+    %Start地点まで探索完了
+    if map(p.start(1),p.start(2))~=inf break; end;
+end
+map
+
+%最短経路を生成
+sind=ComputeShortestPath(map,p);
+
+%カバレージパスの生成
+cind=ComputeCoveragePath(map,p);
+
+animation(cind,p);
+
+figure(1)
+plot(p.boundary(:,1),p.boundary(:,2),'xk');hold on;
+plot(p.start(1),p.start(2),'*r');hold on;
+plot(p.goal(1),p.goal(2),'*b');hold on;
+plot(sind(:,1),sind(:,2),'-r');hold on;
+plot(cind(:,1),cind(:,2),'-b');hold on;
+
+axis([0-0.5 p.XYMAX+1+0.5 0-0.5 p.XYMAX+1+0.5])
+grid on;
+
+
+% [maskX maskY] = ginput(5);
+%
+% plot(maskX,maskY,'r-');hold on;
+% axis([0 10 0 10])
+% grid on;
+
+
+
+end
+
+function map=ObstacleTransform(map,p)
+%すべてのグリットに対して、障害物との距離を計算し、その最小値を格納する
+for ix=1:p.XYMAX
+    for iy=1:p.XYMAX
+        n=[];
+        for io=1:length(p.boundary(:,1))
+            n=[n norm(p.boundary(io,:)-[ix iy])];
+        end
+        map(ix,iy)=min(n);
+    end
+end
+
+end
+
+function p=GetBoundary(p)
+p.boundary=[];
+for i1=0:(p.XYMAX+1)
+    p.boundary=[p.boundary;[0 i1]];
+end
+for i2=0:(p.XYMAX+1)
+    p.boundary=[p.boundary;[i2 0]];
+end
+for i3=0:(p.XYMAX+1)
+    p.boundary=[p.boundary;[p.XYMAX+1 i3]];
+end
+for i4=0:(p.XYMAX+1)
+    p.boundary=[p.boundary;[i4 p.XYMAX+1]];
+end
+
+end
+
+function animation(ind,p)
+
+for i=1:length(ind(:,1))
+    hold off;
+    plot(ind(i,1),ind(i,2),'*r');hold on;
+    plot(ind(1:i,1),ind(1:i,2),'-b');hold on;
+    axis([0 p.XYMAX+1 0 p.XYMAX+1])
+    grid on;
+    pause;
+end
+
+end
+
+function indresult=ComputeCoveragePath(map,p)
+
+indresult=[];
+ix=p.start(1);
+iy=p.start(2);
+while(1)
+    result=[];
+    indresult=[indresult;[ix iy]];
+    map(ix,iy)=-1;
+    for incx=-1:1
+        for incy=-1:1
+            indx=ix+incx;
+            indy=iy+incy;
+            
+            %自分自身を参照していたらスキップ
+            if (incx==0)&&(incy==0) continue;end
+            
+            %インデックスがオーバフローしたらスキップ
+            if(indx<=0||indx>p.XYMAX) continue;end
+            if(indy<=0||indy>p.XYMAX) continue;end
+            
+            if map(indx,indy)>=0
+                result=[result;[map(indx,indy) indx indy]];
+            end
+        end
+    end
+    %ローカルミニマ
+    if length(result)==0
+        break;
+    end
+    rsize=size(result(:,1));
+    %result
+    %indresult
+    %resultが一個しか無いとき
+    if rsize(1,1)~=1
+        [mi mj]=max(result);
+        ix=result(mj(1),2);
+        iy=result(mj(1),3);
+    else
+        ix=result(1,2);
+        iy=result(1,3);
+    end
+    if ix==p.goal(1)&&iy==p.goal(2)
+        indresult=[indresult;[ix iy]];
+        break;
+    end
+    
+end
+
+end
+
+function indresult=ComputeShortestPath(map,p)
+indresult=[];
+ix=p.start(1);
+iy=p.start(2);
+while(1)
+    result=[];
+    indresult=[indresult;[ix iy]];
+    for incx=-1:1
+        for incy=-1:1
+            indx=ix+incx;
+            indy=iy+incy;
+            
+            %自分自身を参照していたらスキップ
+            if (incx==0)&&(incy==0) continue;end
+            
+            %インデックスがオーバフローしたらスキップ
+            if(indx<=0||indx>p.XYMAX) continue;end
+            if(indy<=0||indy>p.XYMAX) continue;end
+            
+            result=[result;[map(indx,indy) indx indy]];
+        end
+    end
+    [mi mj]=min(result);
+    ix=result(mj(1),2);
+    iy=result(mj(1),3);
+    
+    if ix==p.goal(1)&&iy==p.goal(2)
+        indresult=[indresult;[ix iy]];
+        break;
+    end
+    
+end
+
+end
+
+function map=DistanceTransform(map,p)
+
+while(1)
+    maptmp=map;%参照用にコピー
+    for ix=1:p.XYMAX
+        for iy=1:p.XYMAX
+            for incx=-1:1
+                for incy=-1:1
+                    indx=ix+incx;
+                    indy=iy+incy;
+                    
+                    %自分自身を参照していたらスキップ
+                    if (incx==0)&&(incy==0) continue;end
+                    
+                    %インデックスがオーバフローしたらスキップ
+                    if(indx<=0||indx>p.XYMAX) continue;end
+                    if(indy<=0||indy>p.XYMAX) continue;end
+                    
+                    %カレントグリットがinfで目標のグリットがinf以外の場合
+                    if maptmp(indx,indy)~=inf&&(map(ix,iy)==inf)
+                        map(ix,iy)=maptmp(indx,indy)+1;
+                    end
+                end
+            end
+        end
+    end
+    %Start地点まで探索完了
+    if map(p.start(1),p.start(2))~=inf break; end;
+end
+
+end
+
