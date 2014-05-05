@@ -73,7 +73,7 @@ while ~findFlag
       for in=1:length(next(:,1))
           %隣接ノードの位置とコストの計算
           m=[open(1,1)+next(in,1) open(1,2)+next(in,2) open(1,3)];
-          m(3)=m(3)+1+h(m(1:2),p.goal)-h(open(1,1:2),p.goal);%コストの計算
+          m(3)=m(3)+next(in,3)+h(m(1:2),p.goal)-h(open(1,1:2),p.goal);%コストの計算
           
           %隣接ノードが障害物だったら次のノードを探す
           if isObstacle(m,obstacle) continue; end
@@ -205,14 +205,15 @@ end
 flag=false;%障害物ではない
 end
 
-function next=MotionModel()
+function [next,cost]=MotionModel()
 %隣接ノードへの移動モデル これを変えることでロボットの移動を指定できる
-next=[1 1
-      1 0
-      0 1
-      -1 0
-      0 -1
-      -1 -1];
+% [x y cost]
+next=[1 1 1
+      1 0 1
+      0 1 1
+      -1 0 1
+      0 -1 1
+      -1 -1 1];
 end
 
 function path=GetPath(close,start)
