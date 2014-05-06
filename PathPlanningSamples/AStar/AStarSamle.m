@@ -205,7 +205,7 @@ end
 flag=false;%障害物ではない
 end
 
-function [next,cost]=MotionModel()
+function next=MotionModel()
 %隣接ノードへの移動モデル これを変えることでロボットの移動を指定できる
 % [x y cost]
 next=[1 1 1
@@ -213,7 +213,9 @@ next=[1 1 1
       0 1 1
       -1 0 1
       0 -1 1
-      -1 -1 1];
+      -1 -1 1
+      -1 1 1
+      1 -1 1];
 end
 
 function path=GetPath(close,start)
