@@ -1,11 +1,15 @@
 function [] = AStarSample()
-%DijkstraSample() ダイクストラ法による最短経路探索プログラム
+%AStarSample() A*法による最短経路探索プログラム
 %
 % Author: Atsushi Sakai
+%
+% Reference:A*による最短経路探索MATLABプログラム - MY ENIGMA 
+%           http://d.hatena.ne.jp/meison_amsl/20140503/1399080847
 %
 % Copyright (c) 2014, Atsushi Sakai
 % All rights reserved.
 % License : Modified BSD Software License Agreement
+
 clear all;
 close all;
 disp('A Star Path Planning start!!');

@@ -1,4 +1,14 @@
 function PathSmoothingSample()
+%PathSmoothingSample() パス平滑化用MATLABサンプルコード
+%
+% Author: Atsushi Sakai
+%
+% Reference:MATLABよる経路平滑化(Path Smoothing)プログラム - 
+%           http://d.hatena.ne.jp/meison_amsl/20140510/1399694663
+%
+% Copyright (c) 2014, Atsushi Sakai
+% All rights reserved.
+% License : Modified BSD Software License Agreement
 clear all;
 close all;
 
@@ -17,9 +27,11 @@ path=[0 0;
   
 optPath=PathSmoothing(path);
   
-plot(path(:,1),path(:,2),'.b');hold on;
-plot(optPath(:,1),optPath(:,2),'or');hold on;
-axis([-1 7 -1 7])
+plot(path(:,1),path(:,2),'-.b');hold on;
+plot(optPath(:,1),optPath(:,2),'-or');hold on;
+axis([-1 7 -2 6])
+legend('Before','After');
+title('Path Smoothing');
 grid on;
 
 end
@@ -27,8 +39,10 @@ end
 function optPath=PathSmoothing(path)
 optPath=path;%元のパスをコピー
 
-alpha=0;
-beta=0.1;
+%平準化パラメータ
+alpha=0.5;
+beta=0.2;
+
 torelance=0.00001;%パスの変化量の閾値(変化量がこの値以下の時平滑化を終了)
 change=torelance;%パスの位置の変化量
 while change>=torelance 

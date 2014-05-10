@@ -3,6 +3,8 @@ function [] = DijkstraSample()
 %
 % Author: Atsushi Sakai
 %
+% Reference:ダイクストラ法による最短経路探索MATLABプログラム - MY ENIGMA 
+%           http://d.hatena.ne.jp/meison_amsl/20140502/1399001915
 % Copyright (c) 2014, Atsushi Sakai
 % All rights reserved.
 % License : Modified BSD Software License Agreement
