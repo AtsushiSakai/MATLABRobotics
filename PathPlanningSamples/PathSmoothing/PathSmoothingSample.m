@@ -49,8 +49,8 @@ while change>=torelance
     change=0;%初期化
     for ip=2:(length(path(:,1))-1) %始点と終点は固定
         prePath=optPath(ip,:);%変化量計測用
-        optPath(ip,:)=optPath(ip,:)+alpha*(path(ip,:)-optPath(ip,:));
-        optPath(ip,:)=optPath(ip,:)+beta*(optPath(ip-1,:)+optPath(ip+1,:)-2*optPath(ip,:));
+        optPath(ip,:)=optPath(ip,:)-alpha*(optPath(ip,:)-path(ip,:));
+        optPath(ip,:)=optPath(ip,:)-beta*(2*optPath(ip,:)-optPath(ip-1,:)-optPath(ip+1,:));
         change=change+norm(optPath(ip,:)-prePath);
     end
 end
