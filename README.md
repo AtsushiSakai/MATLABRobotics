@@ -3,6 +3,7 @@ MATLABRobotics
 
 MATLAB Sample Codes for Robotics
 
+
 MATLABを使った自律移動用ロボット用サンプルコードです。
 
 それぞれのコードの概要は下記の通りです。
@@ -16,24 +17,32 @@ MATLABを使った自律移動用ロボット用サンプルコードです。
 位置計測系のサンプルコード用フォルダです。
 
 ##ExtenedKalmanFilterLocalization
-拡張カルマンフィルタを使用した自己位置推定コードです。
+拡張カルマンフィルタを使用した自己位置推定プログラムです。
 
-移動ロボットにおける拡張カルマンフィルタを使用した自己位置推定のサンプルプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20130413/1365826157
+拡張カルマンフィルタを使用した自己位置推定MATLABサンプルプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20130413/1365826157
+
+##UnscentedKalmanFilterLocalization
+Unscentedカルマンフィルタ(シグマポイントカルマンフィルタ)を使用した自己位置推定プログラムです。
+
+Unscentedカルマンフィルタを使用した自己位置推定MATLABサンプルプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20140614/1402731732
+
+
 
 #PathPlanning
 経路生成系のサンプルコード用フォルダです。
 
 ##Dijkstra
-ダイクストラ法を用いた経路生成コードです。
+ダイクストラ法を用いた経路生成プログラムです。
+動的計画法(Dyamic Programing)的なシミュレーションも可能です。
 
 ダイクストラ法による最短経路探索MATLABプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20140502/1399001915
 
 ##AStar
-A*をを用いた経路生成コードです。
+A*を用いた最短経路生成プログラムです。
 
 A*による最短経路探索MATLABプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20140503/1399080847
 
 ##PathSmoothing
-パス平滑化コードです。
+単純な勾配法を使用したパス平滑化プログラムです。
 
 MATLABよる経路平滑化(Path Smoothing)プログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20140510/1399694663
