@@ -3,24 +3,23 @@
 % File : Unscented KalmanFilterLocalization.m
 %
 % Discription : Mobible robot localization sample code with
-%               Unscented Kalman Filter (EKF)
+%               Unscented Kalman Filter (UKF)
 %
 % Environment : Matlab
 %
 % Author : Atsushi Sakai
 %
-% Copyright (c): 2013 Atsushi Sakai
+% Copyright (c): 2014 Atsushi Sakai
 %
 % License : Modified BSD Software License Agreement
 % -------------------------------------------------------------------------
- 
  
 function [] = UnscentedKalmanFilterLocalization()
  
 close all;
 clear all;
  
-disp('Unscented Kalman Filter (EKF) sample program start!!')
+disp('Unscented Kalman Filter (UKF) sample program start!!')
  
 time = 0;
 endtime = 60; % [sec]
@@ -36,8 +35,7 @@ result.xEst=[];
 result.z=[];
 result.PEst=[];
 result.u=[];
- 
- 
+
 % State Vector [x y yaw v]'
 xEst=[0 0 0 0]';
  
@@ -49,23 +47,37 @@ xd=xTrue;
  
 % Observation vector [x y yaw v]'
 z=[0 0 0 0]';
- 
- 
-% Covariance Matrix for motion
+
+% Covariance Matrix for predict
 Q=diag([0.1 0.1 toRadian(1) 0.05]).^2;
  
 % Covariance Matrix for observation
 R=diag([1.5 1.5 toRadian(3) 0.05]).^2;
- 
- 
+
 % Simulation parameter
 global Qsigma
-Qsigma=diag([0.1 0.1 toRadian(10) 0.05]).^2;
+Qsigma=diag([0.1 toRadian(20)]).^2;
  
 global Rsigma
 Rsigma=diag([1.5 1.5 toRadian(3) 0.05]).^2;
  
- 
+% UKF Parameter
+alpha=0.001;
+beta =2;
+kappa=0;
+
+n=length(xEst);%size of state vector
+lamda=alpha^2*(n+kappa)-n;
+
+%calculate weights
+wm=[lamda/(lamda+n)];
+wc=[(lamda/(lamda+n))+(1-alpha^2+beta)];
+for i=1:2*n
+    wm=[wm 1/(2*(n+lamda))];
+    wc=[wc 1/(2*(n+lamda))];
+end
+gamma=sqrt(n+lamda);
+
 PEst = eye(4);
  
 tic;
@@ -75,24 +87,28 @@ for i=1 : nSteps
     % Input
     u=doControl(time);
     % Observation
-    [z xTrue xd w]=Observation(xTrue, xd, u, time);
+    [z,xTrue,xd,u]=Observation(xTrue, xd, u);
     
     % ------ Unscented Kalman Filter --------
-    % Predict
-    F=jacobF(xEst, u);
-    xPred = f(xEst, u, w);
-    PPred= F*PEst*F' + Q;
+    % Predict 
+    sigma=GenerateSigmaPoints(xEst,PEst,gamma);
+    sigma=PredictMotion(sigma,u);
+    xPred=(wm*sigma')';
+    PPred=CalcSimgaPointsCovariance(xPred,sigma,wc,Q);
     
     % Update
-    H=jacobH(xPred);
-    y = z - h(xPred,0);
-    S = H*PPred*H' + R;
-    K = PPred*H'*inv(S);
+    y = z - h(xPred);
+    sigma=GenerateSigmaPoints(xPred,PPred,gamma);
+    zSigma=PredictObservation(sigma);
+    zb=(wm*sigma')';
+    St=CalcSimgaPointsCovariance(zb,zSigma,wc,R);
+    Pxz=CalcPxz(sigma,xPred,zSigma,zb,wc);
+    K=Pxz*inv(St);
     xEst = xPred + K*y;
-    PEst = (eye(size(xEst,1)) - K*H)*PPred;
+    PEst=PPred-K*St*K';
     
-    %Animation
-    if rem(i,5)==0 %アニメーションデータの間引き
+    %Animation (remove some flames)
+    if rem(i,5)==0 
         plot(xTrue(1),xTrue(2),'.b');hold on;
         plot(z(1),z(2),'.g');hold on;
         plot(xd(1),xd(2),'.k');hold on;
@@ -114,65 +130,80 @@ end
 toc
  
 DrawGraph(result);
- 
- 
+
+function sigma=PredictMotion(sigma,u)
+% Sigma Points predition with motion model
+for i=1:length(sigma(1,:))
+    sigma(:,i)=f(sigma(:,i),u);
+end
+
+function sigma=PredictObservation(sigma)
+% Sigma Points predition with observation model
+for i=1:length(sigma(1,:))
+    sigma(:,i)=h(sigma(:,i));
+end
+
+function P=CalcSimgaPointsCovariance(xPred,sigma,wc,N)
+nSigma=length(sigma(1,:));
+d=sigma-repmat(xPred,1,nSigma);
+P=N;
+for i=1:nSigma
+    P=P+wc(i)*d(:,i)*d(:,i)';
+end
+
+function P=CalcPxz(sigma,xPred,zSigma,zb,wc)
+nSigma=length(sigma(1,:));
+dx=sigma-repmat(xPred,1,nSigma);
+dz=zSigma-repmat(zb,1,nSigma);
+P=zeros(length(sigma(:,1)));
+for i=1:nSigma
+    P=P+wc(i)*dx(:,i)*dz(:,i)';
+end
+
+function sigma=GenerateSigmaPoints(xEst,PEst,gamma)
+sigma=xEst;
+Psqrt=sqrtm(PEst);
+n=length(xEst);
+%Positive direction
+for ip=1:n
+    sigma=[sigma xEst+gamma*Psqrt(:,ip)];
+end
+%Negative direction
+for in=1:n
+    sigma=[sigma xEst-gamma*Psqrt(:,in)];
+end
+
+function x = f(x, u)
 % Motion Model
-function x = f(x, u, w)
  
 global dt;
- 
  
 F = [1 0 0 0
     0 1 0 0
     0 0 1 0
     0 0 0 0];
  
- 
 B = [
     dt*cos(x(3)) 0
     dt*sin(x(3)) 0
     0 dt
     1 0];
- 
- 
-x= F*x+B*u+w;
- 
-% Jacobian of Motion Model
-function jF = jacobF(x, u)
- 
-global dt;
- 
-jF=[
-    1 0 0 0
-    0 1 0 0
-    -dt*u(1)*sin(x(3)) dt*cos(x(3)) 1 0
-    dt*u(1)*cos(x(3)) dt*sin(x(3)) 0 1];
- 
- 
+  
+x= F*x+B*u;
+
+function z = h(x)
 %Observation Model
-function z = h(x, v)
- 
+
 H = [1 0 0 0
     0 1 0 0
     0 0 1 0
     0 0 0 1 ];
  
-z=H*x+v;
- 
- 
-%Jacobian of Observation Model
-function jH = jacobH(x)
- 
-jH =[1 0 0 0
-    0 1 0 0
-    0 0 1 0
-    0 0 0 1];
- 
- 
-%Calc Input Parameter
+z=H*x;
+
 function u = doControl(time)
- 
-T=2; % [sec]
+%Calc Input Parameter
+T=10; % [sec]
  
 % [V yawrate]
 V=1.0; % [m/s]
@@ -182,19 +213,18 @@ u =[ V*(1-exp(-time/T)) toRadian(yawrate)*(1-exp(-time/T))]';
  
  
 %Calc Observation from noise prameter
-function [z, x, xd, w] = Observation(x, xd, u, time, dt)
+function [z, x, xd, u] = Observation(x, xd, u)
 global Qsigma;
 global Rsigma;
  
-w=Qsigma*randn(4,1);
-xx=f(x, u, w);
-z=h(xx, Rsigma*randn(4,1));
-xd=f(xd, u, w);
-x=f(x, u, 0);
- 
-%Plot Result
+x=f(x, u);% Ground Truth
+u=u+Qsigma*randn(2,1);%add Process Noise
+xd=f(xd, u);% Dead Reckoning
+z=h(x+Rsigma*randn(4,1));%Simulate Observation
+
+
 function []=DrawGraph(result)
-time=result.time;
+%Plot Result
  
 figure(1);
 x=[ result.xTrue(:,1:2) result.xEst(:,1:2) result.z(:,1:2)];
@@ -204,19 +234,17 @@ plot(x(:,1), x(:,2),'-.b','linewidth', 4); hold on;
 plot(x(:,3), x(:,4),'r','linewidth', 4); hold on;
 plot(result.xd(:,1), result.xd(:,2),'--k','linewidth', 4); hold on;
  
-title('EKF Localization Result', 'fontsize', 16, 'fontname', 'times');
+title('UKF Localization Result', 'fontsize', 16, 'fontname', 'times');
 xlabel('X (m)', 'fontsize', 16, 'fontname', 'times');
 ylabel('Y (m)', 'fontsize', 16, 'fontname', 'times');
-legend('Ground Truth','GPS','Dead Reckoning','EKF');
+legend('Ground Truth','GPS','Dead Reckoning','UKF');
 grid on;
 axis equal;
  
- 
-% degree to radian
 function radian = toRadian(degree)
+% degree to radian
 radian = degree/180*pi;
- 
- 
-% radian to degree
+
 function degree = toDegree(radian)
+% radian to degree
 degree = radian/pi*180;

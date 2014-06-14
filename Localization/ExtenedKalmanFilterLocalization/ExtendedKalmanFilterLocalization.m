@@ -88,8 +88,8 @@ for i=1 : nSteps
     xEst = xPred + K*y;
     PEst = (eye(size(xEst,1)) - K*H)*PPred;
     
-    %Animation
-    if rem(i,5)==0 %アニメーションデータの間引き
+    %Animation (remove some flames)
+    if rem(i,5)==0 
         plot(xTrue(1),xTrue(2),'.b');hold on;
         plot(z(1),z(2),'.g');hold on;
         plot(xd(1),xd(2),'.k');hold on;
@@ -179,12 +179,11 @@ function [z, x, xd, u] = Observation(x, xd, u)
 global Qsigma;
 global Rsigma;
 
-w=Qsigma*randn(2,1);%Calc Process Noise
-z=h(x+Rsigma*randn(4,1));%Simulate Observation
-xd=f(xd, u+w);% Dead Reckoning
 x=f(x, u);% Ground Truth
-u=u+w;
- 
+u=u+Qsigma*randn(2,1);%add Process Noise
+xd=f(xd, u);% Dead Reckoning
+z=h(x+Rsigma*randn(4,1));%Simulate Observation
+
 
 function []=DrawGraph(result)
 %Plot Result
