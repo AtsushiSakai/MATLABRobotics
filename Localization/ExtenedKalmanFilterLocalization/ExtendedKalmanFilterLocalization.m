@@ -9,7 +9,7 @@
 %
 % Author : Atsushi Sakai
 %
-% Copyright (c): 2013 Atsushi Sakai
+% Copyright (c): 2014 Atsushi Sakai
 %
 % License : Modified BSD Software License Agreement
 % -------------------------------------------------------------------------
@@ -50,22 +50,19 @@ xd=xTrue;
 % Observation vector [x y yaw v]'
 z=[0 0 0 0]';
  
- 
 % Covariance Matrix for motion
 Q=diag([0.1 0.1 toRadian(1) 0.05]).^2;
  
 % Covariance Matrix for observation
 R=diag([1.5 1.5 toRadian(3) 0.05]).^2;
  
- 
 % Simulation parameter
 global Qsigma
-Qsigma=diag([0.1 0.1 toRadian(10) 0.05]).^2;
+Qsigma=diag([0.1 toRadian(20)]).^2; %[v yawrate]
  
 global Rsigma
-Rsigma=diag([1.5 1.5 toRadian(3) 0.05]).^2;
- 
- 
+Rsigma=diag([1.5 1.5 toRadian(3) 0.05]).^2;%[x y z yaw v]
+
 PEst = eye(4);
  
 tic;
@@ -75,17 +72,17 @@ for i=1 : nSteps
     % Input
     u=doControl(time);
     % Observation
-    [z xTrue xd w]=Observation(xTrue, xd, u, time);
+    [z,xTrue,xd,u]=Observation(xTrue, xd, u);
     
     % ------ Kalman Filter --------
     % Predict
     F=jacobF(xEst, u);
-    xPred = f(xEst, u, w);
+    xPred = f(xEst, u);
     PPred= F*PEst*F' + Q;
     
     % Update
     H=jacobH(xPred);
-    y = z - h(xPred,0);
+    y = z - h(xPred);
     S = H*PPred*H' + R;
     K = PPred*H'*inv(S);
     xEst = xPred + K*y;
@@ -114,11 +111,10 @@ end
 toc
  
 DrawGraph(result);
- 
- 
+
+function x = f(x, u)
 % Motion Model
-function x = f(x, u, w)
- 
+
 global dt;
  
  
@@ -135,11 +131,11 @@ B = [
     1 0];
  
  
-x= F*x+B*u+w;
+x= F*x+B*u;
  
-% Jacobian of Motion Model
 function jF = jacobF(x, u)
- 
+% Jacobian of Motion Model
+
 global dt;
  
 jF=[
@@ -147,32 +143,29 @@ jF=[
     0 1 0 0
     -dt*u(1)*sin(x(3)) dt*cos(x(3)) 1 0
     dt*u(1)*cos(x(3)) dt*sin(x(3)) 0 1];
- 
- 
+
+function z = h(x)
 %Observation Model
-function z = h(x, v)
- 
+
 H = [1 0 0 0
     0 1 0 0
     0 0 1 0
     0 0 0 1 ];
  
-z=H*x+v;
- 
- 
-%Jacobian of Observation Model
+z=H*x;
+
 function jH = jacobH(x)
- 
+%Jacobian of Observation Model
+
 jH =[1 0 0 0
     0 1 0 0
     0 0 1 0
     0 0 0 1];
- 
- 
-%Calc Input Parameter
+
 function u = doControl(time)
- 
-T=2; % [sec]
+%Calc Input Parameter
+
+T=10; % [sec]
  
 % [V yawrate]
 V=1.0; % [m/s]
@@ -180,22 +173,22 @@ yawrate = 5; % [deg/s]
  
 u =[ V*(1-exp(-time/T)) toRadian(yawrate)*(1-exp(-time/T))]';
  
- 
+
+function [z, x, xd, u] = Observation(x, xd, u)
 %Calc Observation from noise prameter
-function [z, x, xd, w] = Observation(x, xd, u, time, dt)
 global Qsigma;
 global Rsigma;
+
+w=Qsigma*randn(2,1);%Calc Process Noise
+z=h(x+Rsigma*randn(4,1));%Simulate Observation
+xd=f(xd, u+w);% Dead Reckoning
+x=f(x, u);% Ground Truth
+u=u+w;
  
-w=Qsigma*randn(4,1);
-xx=f(x, u, w);
-z=h(xx, Rsigma*randn(4,1));
-xd=f(xd, u, w);
-x=f(x, u, 0);
- 
-%Plot Result
+
 function []=DrawGraph(result)
-time=result.time;
- 
+%Plot Result
+
 figure(1);
 x=[ result.xTrue(:,1:2) result.xEst(:,1:2) result.z(:,1:2)];
 set(gca, 'fontsize', 16, 'fontname', 'times');
@@ -210,13 +203,11 @@ ylabel('Y (m)', 'fontsize', 16, 'fontname', 'times');
 legend('Ground Truth','GPS','Dead Reckoning','EKF');
 grid on;
 axis equal;
- 
- 
-% degree to radian
+
 function radian = toRadian(degree)
+% degree to radian
 radian = degree/180*pi;
- 
- 
-% radian to degree
+
 function degree = toDegree(radian)
+% radian to degree
 degree = radian/pi*180;
