@@ -46,3 +46,14 @@ A*による最短経路探索MATLABプログラム - MY ENIGMA http://d.hatena.n
 単純な勾配法を使用したパス平滑化プログラムです。
 
 MATLABよる経路平滑化(Path Smoothing)プログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20140510/1399694663
+
+
+#SLAM
+Simultaneous Localization And Mapping(SLAM)のサンプルコード用フォルダです。
+
+## ICP
+Iterative Closest Point (ICP) Algorithmを使用したScanデータに基づく相対移動量推定プログラムです。
+
+ICPアルゴリズムを利用したSLAM用MATLABサンプルプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20140617/1402971928
+
+
