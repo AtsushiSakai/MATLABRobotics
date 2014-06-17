@@ -68,7 +68,6 @@ grid on;
 axis([-fieldLength/2 fieldLength/2 -fieldLength/2 fieldLength/2]);
 
 
-
 function [R, t]=ICPMatching(data1, data2)
 % ICPアルゴリズムによる、並進ベクトルと回転行列の計算を実施する関数
 % data1 = [x(t)1 x(t)2 x(t)3 ...]
@@ -76,7 +75,6 @@ function [R, t]=ICPMatching(data1, data2)
 % x=[x y z]'
 
 %ICP パラメータ
-error=1000;  %各点群のノルム誤差の総和
 preError=0;%一つ前のイタレーションのerror値
 dError=1000;%エラー値の差分
 EPS=0.0001;%収束判定値
@@ -91,10 +89,12 @@ while ~(dError < EPS)
     
     [ii, error]=FindNearestPoint(data1, data2);%最近傍点探索
     [R1, t1]=SVDMotionEstimation(data1, data2, ii);%特異値分解による移動量推定
+    %計算したRとtで点群とRとtの値を更新
     data2=R1*data2;
     data2=[data2(1,:)+t1(1) ; data2(2,:)+t1(2)];
     R = R1*R;
     t = R1*t + t1; 
+    
     dError=abs(preError-error);%エラーの改善量
     preError=error;%一つ前のエラーの総和値を保存
     
@@ -119,10 +119,8 @@ for i=1:m1
     error=error+dist;
 end
 
-function [R, t1]=SVDMotionEstimation(data1, data2, index)
+function [R, t]=SVDMotionEstimation(data1, data2, index)
 %特異値分解法による並進ベクトルと、回転行列の計算
-
-n = length(index);
 
 %各点群の重心の計算
 M = data1; 
@@ -138,14 +136,7 @@ W = Sshifted*Mshifted';
 [U A V] = svd(W);%特異値分解
 
 R = (U*V')';%回転行列の計算
-
-if det(R)<0
-    B = eye(2)
-    B(2,2) = det(V*U');
-    R = V*B*U';
-end
-
-t1 = mm - R*ms;%並進ベクトルの計算
+t = mm - R*ms;%並進ベクトルの計算
 
 function radian = toRadian(degree)
 % degree to radian
