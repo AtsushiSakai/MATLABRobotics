@@ -66,6 +66,7 @@ Rsigma=diag([1.5 1.5 toRadian(3) 0.05]).^2;%[x y z yaw v]
 PEst = eye(4);
  
 tic;
+
 % Main loop
 for i=1 : nSteps
     time = time + dt;
@@ -89,11 +90,13 @@ for i=1 : nSteps
     PEst = (eye(size(xEst,1)) - K*H)*PPred;
     
     %Animation (remove some flames)
-    if rem(i,5)==0 
-        plot(xTrue(1),xTrue(2),'.b');hold on;
-        plot(z(1),z(2),'.g');hold on;
-        plot(xd(1),xd(2),'.k');hold on;
-        plot(xEst(1),xEst(2),'.r');hold on;
+    if rem(i,5)==0
+        %hold off;
+        plot(result.xTrue(:,1),result.xTrue(:,2),'.b');hold on;
+        plot(result.z(:,1),result.z(:,2),'.g');hold on;
+        plot(result.xd(:,1),result.xd(:,2),'.k');hold on;
+        plot(result.xEst(:,1),result.xEst(:,2),'.r');hold on;
+        ShowErrorEllipse(xEst,PEst);
         axis equal;
         grid on;
         drawnow;
@@ -111,6 +114,40 @@ end
 toc
  
 DrawGraph(result);
+
+function ShowErrorEllipse(xEst,PEst)
+%誤差分散円を計算し、表示する関数
+Pxy=PEst(1:2,1:2);%x,yの共分散を取得
+[eigvec, eigval]=eig(Pxy);%固有値と固有ベクトルの計算
+%固有値の大きい方のインデックスを探す
+if eigval(1,1)>=eigval(2,2)
+    bigind=1;
+    smallind=2;
+else
+    bigind=2;
+    smallind=1;
+end
+
+chi=9.21;%誤差楕円のカイの二乗分布値　99%
+
+%楕円描写
+t=0:10:360;
+a=sqrt(eigval(bigind,bigind)*chi);
+b=sqrt(eigval(smallind,smallind)*chi);
+x=[a*cosd(t);
+   b*sind(t)];
+%誤差楕円の角度を計算
+angle = atan2(eigvec(bigind,2),eigvec(bigind,1));
+if(angle < 0)
+    angle = angle + 2*pi;
+end
+
+%誤差楕円の回転
+R=[cos(angle) sin(angle);
+   -sin(angle) cos(angle)];
+x=R*x;
+plot(x(1,:)+xEst(1),x(2,:)+xEst(2))
+
 
 function x = f(x, u)
 % Motion Model
@@ -199,9 +236,19 @@ plot(result.xd(:,1), result.xd(:,2),'--k','linewidth', 4); hold on;
 title('EKF Localization Result', 'fontsize', 16, 'fontname', 'times');
 xlabel('X (m)', 'fontsize', 16, 'fontname', 'times');
 ylabel('Y (m)', 'fontsize', 16, 'fontname', 'times');
-legend('Ground Truth','GPS','Dead Reckoning','EKF');
+legend('Ground Truth','GPS','Dead Reckoning','EKF','Error Ellipse');
 grid on;
 axis equal;
+
+function angle=Pi2Pi(angle)
+angle = mod(angle, 2*pi);
+
+i = find(angle>pi);
+angle(i) = angle(i) - 2*pi;
+
+i = find(angle<-pi);
+angle(i) = angle(i) + 2*pi;
+
 
 function radian = toRadian(degree)
 % degree to radian

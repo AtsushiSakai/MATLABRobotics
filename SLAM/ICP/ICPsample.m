@@ -133,7 +133,7 @@ Sshifted = [S(1,:)-ms(1); S(2,:)-ms(2);];
 Mshifted = [M(1,:)-mm(1); M(2,:)-mm(2);];
 
 W = Sshifted*Mshifted';
-[U A V] = svd(W);%特異値分解
+[U,A,V] = svd(W);%特異値分解
 
 R = (U*V')';%回転行列の計算
 t = mm - R*ms;%並進ベクトルの計算
