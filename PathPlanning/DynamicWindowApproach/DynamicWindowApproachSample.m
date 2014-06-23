@@ -24,24 +24,27 @@ x=[0 0 pi/2 0 0]';%ƒƒ{ƒbƒg‚Ì‰Šúó‘Ô[x(m),y(m),yaw(Rad),v(m/s),ƒÖ(rad/s)]
 goal=[10,10];%ƒS[ƒ‹‚ÌˆÊ’u [x(m),y(m)]
 %áŠQ•¨ƒŠƒXƒg [x(m) y(m)]
 obstacle=[0 2;
+          4 2;
+          4 4;
           5 4;
           5 5;
-          5 6
-          5 9];
+          5 6;
+          5 9
+          8 8
+          8 9
+          7 9];
       
-obstacleR=1;%Õ“Ë”»’è—p‚ÌáŠQ•¨‚Ì”¼Œa
-global dt;
-dt=0.1;%‚ÝŽžŠÔ
+obstacleR=0.5;%Õ“Ë”»’è—p‚ÌáŠQ•¨‚Ì”¼Œa
+global dt; dt=0.1;%‚ÝŽžŠÔ[s]
 
 %ƒƒ{ƒbƒg‚Ì—ÍŠwƒ‚ƒfƒ‹
 %[Å‚‘¬“x[m/s],Å‚‰ñ“ª‘¬“x[rad/s],Å‚‰ÁŒ¸‘¬“x[m/ss],Å‚‰ÁŒ¸‰ñ“ª‘¬“x[rad/ss],
 % ‘¬“x‰ð‘œ“x[m/s],‰ñ“ª‘¬“x‰ð‘œ“x[rad/s]]
-Kinematic=[1.0,toRadian(30.0),0.2,toRadian(50.0),0.01,toRadian(1)];
+Kinematic=[1.0,toRadian(20.0),0.2,toRadian(50.0),0.01,toRadian(1)];
 
 %•]‰¿ŠÖ”‚Ìƒpƒ‰ƒ[ƒ^ [heading,dist,velocity,predictDT]
-evalParam=[0.8,0.1,0.1,5.0];
+evalParam=[0.05,0.2,0.1,3.0];
 area=[-1 11 -1 11];%ƒVƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“ƒGƒŠƒA‚ÌL‚³ [xmin xmax ymin ymax]
-ArrowLength=0.5;%–îˆó‚Ì’·‚³
 
 %ƒVƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“Œ‹‰Ê
 result.x=[];
@@ -51,7 +54,6 @@ tic;
 for i=1:5000
     %DWA‚É‚æ‚é“ü—Í’l‚ÌŒvŽZ
     [u,traj]=DynamicWindowApproach(x,Kinematic,goal,evalParam,obstacle,obstacleR);
-    
     x=f(x,u);%‰^“®ƒ‚ƒfƒ‹‚É‚æ‚éˆÚ“®
     
     %ƒVƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“Œ‹‰Ê‚Ì•Û‘¶
@@ -62,16 +64,20 @@ for i=1:5000
         disp('Arrive Goal!!');break;
     end
     
-    %Animation
+    %====Animation====
     hold off;
+    ArrowLength=0.5;%–îˆó‚Ì’·‚³
+    %ƒƒ{ƒbƒg
     quiver(x(1),x(2),ArrowLength*cos(x(3)),ArrowLength*sin(x(3)),'ok');hold on;
     plot(result.x(:,1),result.x(:,2),'-b');hold on;
     plot(goal(1),goal(2),'*r');hold on;
     plot(obstacle(:,1),obstacle(:,2),'*k');hold on;
     %’Tõ‹OÕ•\Ž¦
-    for it=1:length(traj(:,1))/5
-        ind=1+(it-1)*5;
-        plot(traj(ind,:),traj(ind+1,:),'-g');hold on;
+    if ~isempty(traj)
+        for it=1:length(traj(:,1))/5
+            ind=1+(it-1)*5;
+            plot(traj(ind,:),traj(ind+1,:),'-g');hold on;
+        end
     end
     axis(area);
     grid on;
@@ -80,49 +86,52 @@ end
 toc
 
 function [u,trajDB]=DynamicWindowApproach(x,model,goal,evalParam,ob,R)
-%DWA‚É‚æ‚é“ü—Í’l‚ÌŒvŽZ‚ð‚µ‚éŠÖ”
+%DWA‚É‚æ‚é“ü—Í’l‚ÌŒvŽZ‚ð‚·‚éŠÖ”
 
 %Dynamic Window[vmin,vmax,ƒÖmin,ƒÖmax]‚Ìì¬
 Vr=CalcDynamicWindow(x,model);
 
-%ƒRƒXƒgŠÖ”‚ÌŒvŽZ‚ÆÅ“K‰»
-costDB=[];
-trajDB=[];
-for vt=Vr(1):model(5):Vr(2)
-    for ot=Vr(3):model(6):Vr(4)
-        %‹OÕ‚Ì„’è
-        [xt,traj]=GenerateTrajectory(x,vt,ot,evalParam(4));
-        %Še•]‰¿ŠÖ”‚ÌŒvŽZ
-        heading=CalcHeadingEval(xt,goal);
-        dist=CalcDistEval(xt,ob)-R;
-        vel=abs(vt);
-        %§“®‹——£‚ÌŒvŽZ
-        stopDist=CalcBreakingDist(vel,model);
-        if dist>stopDist %Õ“Ë‚·‚éê‡‚ÍDB‚É’Ç‰Á‚µ‚È‚¢
-            costDB=[costDB;[vt ot heading dist vel]];
-            trajDB=[trajDB;traj];
-        end
-    end
-end
-costDB;
-if isempty(costDB)
+%•]‰¿ŠÖ”‚ÌŒvŽZ
+[evalDB,trajDB]=Evaluation(x,Vr,goal,ob,R,model,evalParam);
+
+if isempty(evalDB)
     disp('no path to goal!!');
     u=[0;0];return;
 end
 
 %Še•]‰¿ŠÖ”‚Ì³‹K‰»
-costDB=NormalizeEval(costDB);
+evalDB=NormalizeEval(evalDB);
 
 %ÅI•]‰¿’l‚ÌŒvŽZ
 feval=[];
-for id=1:length(costDB(:,1))
-    eval=evalParam(1:3)*costDB(id,3:5)';
-    feval=[feval;eval];
+for id=1:length(evalDB(:,1))
+    feval=[feval;evalParam(1:3)*evalDB(id,3:5)'];
 end
-costDB=[costDB feval];
+evalDB=[evalDB feval];
 
 [maxv,ind]=max(feval);%Å‚à•]‰¿’l‚ª‘å‚«‚¢“ü—Í’l‚ÌƒCƒ“ƒfƒbƒNƒX‚ðŒvŽZ
-u=costDB(ind,1:2)';%•]‰¿’l‚ª‚‚¢“ü—Í’l‚ð•Ô‚·
+u=evalDB(ind,1:2)';%•]‰¿’l‚ª‚‚¢“ü—Í’l‚ð•Ô‚·
+
+function [evalDB,trajDB]=Evaluation(x,Vr,goal,ob,R,model,evalParam)
+%ŠeƒpƒX‚É‘Î‚µ‚Ä•]‰¿’l‚ðŒvŽZ‚·‚éŠÖ”
+evalDB=[];
+trajDB=[];
+for vt=Vr(1):model(5):Vr(2)
+    for ot=Vr(3):model(6):Vr(4)
+        %‹OÕ‚Ì„’è
+        [xt,traj]=GenerateTrajectory(x,vt,ot,evalParam(4),model);
+        %Še•]‰¿ŠÖ”‚ÌŒvŽZ
+        heading=CalcHeadingEval(xt,goal);
+        dist=CalcDistEval(xt,ob,R);
+        vel=abs(vt);
+        %§“®‹——£‚ÌŒvŽZ
+        stopDist=CalcBreakingDist(vel,model);
+        if dist>stopDist %Õ“Ë‚·‚éê‡‚ÍDB‚É’Ç‰Á‚µ‚È‚¢
+            evalDB=[evalDB;[vt ot heading dist vel]];
+            trajDB=[trajDB;traj];
+        end
+    end
+end
 
 function EvalDB=NormalizeEval(EvalDB)
 %•]‰¿’l‚ð³‹K‰»‚·‚éŠÖ”
@@ -136,7 +145,8 @@ if sum(EvalDB(:,5))~=0
     EvalDB(:,5)=EvalDB(:,5)/sum(EvalDB(:,5));
 end
 
-function [x,traj]=GenerateTrajectory(x,vt,ot,evaldt)
+function [x,traj]=GenerateTrajectory(x,vt,ot,evaldt,model)
+%‹OÕƒf[ƒ^‚ðì¬‚·‚éŠÖ”
 global dt;
 time=0;
 u=[vt;ot];%“ü—Í’l
@@ -156,14 +166,20 @@ while vel>0
     vel=vel-model(3)*dt;%Å‚Œ´‘¥
 end
 
-function dist=CalcDistEval(x,ob)
+function dist=CalcDistEval(x,ob,R)
+%áŠQ•¨‚Æ‚Ì‹——£•]‰¿’l‚ðŒvŽZ‚·‚éŠÖ”
 
 dist=100;
 for io=1:length(ob(:,1))
-    disttmp=norm(ob(io,:)-x(1:2)');
+    disttmp=norm(ob(io,:)-x(1:2)')-R;%ƒpƒX‚ÌˆÊ’u‚ÆáŠQ•¨‚Æ‚Ìƒmƒ‹ƒ€Œë·‚ðŒvŽZ
     if dist>disttmp%Å¬’l‚ðŒ©‚Â‚¯‚é
         dist=disttmp;
     end
+end
+
+%“ñ”{ˆÈã‰“‚¢Žž‚Í•]‰¿’l‚ðƒTƒ`‚ç‚¹‚é
+if dist>=2*R
+    dist=2*R;
 end
 
 function heading=CalcHeadingEval(x,goal)
