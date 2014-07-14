@@ -74,11 +74,21 @@ Dynamic Window ApproachのMATLAB サンプルプログラム - MY ENIGMA http://
 #SLAM
 Simultaneous Localization And Mapping(SLAM)のサンプルコード用フォルダです。
 
-## ICP
+##ICP
 ![ICP](http://f.st-hatena.com/images/fotolife/m/meison_amsl/20140617/20140617112008.png)
 
 Iterative Closest Point (ICP) Algorithmを使用したScanデータに基づく相対移動量推定プログラムです。
 
 ICPアルゴリズムを利用したSLAM用MATLABサンプルプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20140617/1402971928
+
+#Machine Learning
+機械学習やパターン認識のサンプルコード用フォルダです。
+
+## EM Algorithm
+![EM](http://f.st-hatena.com/images/fotolife/m/meison_amsl/20140710/20140710202357.png)
+
+EMアルゴリズムによる混合正規分布のパラメータ学習のサンプルコードです。
+
+EMアルゴリズムによる確率分布学習のMATLABプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20140710/1404997476
 
 
