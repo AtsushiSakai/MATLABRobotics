@@ -1,4 +1,4 @@
-function [] = HybridAStarSample()
+function [] = RRTSample()
 %AStarSample() A*法による最短経路探索プログラム
 %
 % Author: Atsushi Sakai
@@ -12,28 +12,31 @@ close all;
 disp('Hybrid A Star Path Planning start!!');
 
 %パラメータ
+global p;
+p.xyTick=1;    %x-y解像度
 p.angleTick=5; %角度解像度[deg]
-p.start=[1, 1,  0/p.angleTick];%スタート地点 [x,y,yaw]
-p.goal =[9,7,-135/p.angleTick];%ゴール地点   [x,y,yaw]
+p.start=[1, 1];%スタート地点 [x,y,yaw]
+%p.goal =[3,7,90/p.angleTick];%ゴール地点   [x,y,yaw]
+p.goal =[7,3];%ゴール地点   [x,y,yaw]
 p.XYMAX=11;     %マップの最大縦横
 
 %境界データの取得
-%obstacle=GetBoundary(p);
+obstacle=GetBoundary(p);
 
 %障害物データの取得 境界データと合わせて取得する
-%nObstacle=20;%障害物の数
-%obstacle=GetObstacle(nObstacle,obstacle,p);
-obstacle=[];
+
+%駐車場型障害物の場合
+obstacle=GetParkingLotObstacle(obstacle);
 
 %最短経路を生成
-path=HybridAStar(obstacle,p);
+path=RRT(obstacle);
 
 %グラフ作成
 figure(1)
 hold off;
-% if length(obstacle)>=1
-%     plot(obstacle(:,1),obstacle(:,2),'om');hold on;
-% end
+if length(obstacle)>=1
+    plot(obstacle(:,1),obstacle(:,2),'om');hold on;
+end
 PlotArrow(p.start,p.angleTick);
 PlotArrow(p.goal,p.angleTick);
 for i=1:length(path(:,1))
@@ -45,92 +48,35 @@ grid on;
 
 end
 
-function path=HybridAStar(obstacle,p)
+function path=RRT(obstacle)
 % A*法によって最短経路を探索するプログラム
 % 最短経路のパスの座標リストを返す
-
-path=[];%パス
-%計算中ノード情報格納用[x,y,yaw,cost,px(親ノード),py,pyaw] startノードを格納する
-%open=[p.start h(p.start,p.goal) p.start];
-oepn.x=p.start;%ノード
-oepn.cost=h(p.start,p.goal);%コスト
-oepn.px=p.start;%親ノード
-
-close=[];%計算済みノード情報格納用
-
-%隣接ノードへの移動モデル これを変えることでロボットの移動を指定できる
-next=MotionModel(p.angleTick);
-
+global p;
+p.GoalProb=0.5;
 findFlag=false;%ゴール発見フラグ
 
+tree=[p.start p.start 0];
+
 while ~findFlag
-      %openにデータがない場合はパスが見つからなかった。  
-      if isempty(open(:,1)) disp('No path to goal!!'); return; end
-      %openなノードの中で最もコストが小さいものを選ぶ
-      [Y,I] = sort(open(:,4));
-      open=open(I,:);
-      
-      %ゴール判定
-      if isSamePosi(open(1,1:3),p.goal)
-          disp('Find Goal!!');
-          %ゴールのノードをCloseの先頭に移動
-          close=[open(1,:);close];open(1,:)=[];
-          findFlag=true;
-          break;
-      end
-      
-      for in=1:length(next(:,1))
-          %隣接ノードの位置とコストの計算
-          phi=toRadian(open(1,3)*p.angleTick);
-          R = [ cos(phi) sin(phi); -sin(phi) cos(phi) ];
-          xy=next(in,1:2)*R;
-          m=[open(1,1)+xy(1) open(1,2)+xy(2) open(1,3)+next(in,3) open(1,4)];
-          m(3)=PI2PI(m(3),p.angleTick);
-          m(4)=m(4)+next(in,4)+h(m(1:3),p.goal)-h(open(1,1:3),p.goal);%コストの計算
-  
-          %pause;
-          %隣接ノードが障害物だったら次のノードを探す
-          %if isObstacle(m,obstacle) continue; end
-          
-          %openとcloseのリストの中にmが含まれるかを探索
-          [flag, targetInd]=FindList(m,open,close);
-
-          if flag==1 %openリストにある場合
-              if m(4)<open(targetInd,4)
-                  open(targetInd,4)=m(4);
-                  open(targetInd,5)=open(1,1);
-                  open(targetInd,6)=open(1,2);
-                  open(targetInd,7)=open(1,3);
-              end
-          elseif flag==2 %closeリストにある場合
-              if m(4)<close(targetInd,4)
-                  %親ノードの更新
-                  %close(targetInd,4)=m(4);
-                  close(targetInd,5)=open(1,1);
-                  close(targetInd,6)=open(1,2);
-                  close(targetInd,7)=open(1,3);
-                  open=[open; close(targetInd,:)];
-                  close(targetInd,:)=[];%Openリストに移動
-              end
-          else %どちらにも無い場合
-              %openリストに親ノードのインデックスと共に追加
-              open=[open;[m open(1,1) open(1,2) open(1,3)]];
-          end
-      end
-
-      %隣接ノード計算したopenノードはcloseノードへ移動
-      if findFlag==false
-          close=[close; open(1,:)];
-          open(1,:)=[];
+      if rand()>p.GoalProb
+        target=p.goal;
+      else
+        target=GetRandomPosi();
       end
       
       %パス探索のステップ動画
       %animation(open,close,p,obstacle);
-
 end
 
 %最短パスの座標リストを取得
-path=GetPath(close,p.start);
+path=GetPath(close,p.start)
+
+end
+
+function target=GetRandomPosi()
+global p
+
+target=[p.XYMAX*rand() p.XYMAX*rand()];
 
 end
 
@@ -138,7 +84,20 @@ function result=h(a,b)
 %ヒューリスティック関数
 %ここでは二次元空間のa,bのノルム距離
 result=norm(a(1:2)-b(1:2));
+%result=norm(a-b);
 
+end
+
+function m=GetNextNode(node,next)
+%隣接ノードを計算するノード
+global p;
+node(3)=PI2PI(node(3)+next(3),p.angleTick);
+phi=toRadian(node(3)*p.angleTick);
+R = [ cos(phi) sin(phi); -sin(phi) cos(phi) ];
+xy=next(1:2)*R;
+m=[node(1)+xy(1) node(2)+xy(2) node(3)+next(3) node(4)];
+m(3)=PI2PI(m(3),p.angleTick);
+m(4)=m(4)+next(4)+h(m(1:3),p.goal)-h(node(1:3),p.goal);%コストの計算
 end
 
 function obstacle=GetObstacle(nob,obstacle,p)
@@ -163,11 +122,22 @@ end
 
 function result=isSamePosi(a,b)
 %3x1のベクトルが同じかどうかを判断する関数
+global p;
 result=false;
-d=a(1:3)-b;
-if abs(d(1))<0.3 && abs(d(2))<0.3 && abs(d(3))<1
-    result=true;
+if length(a)>=3
+    d=a(1:3)-b;
+
+    %Mapの解像度から同じグリッドかどうかを計算する
+    if abs(d(1))<p.xyTick/2 && abs(d(2))<p.xyTick/2 && abs(d(3))<1
+        result=true;
+    end
+else
+    d=a-b(1:2);
+    if abs(d(1))<p.xyTick && abs(d(2))<p.xyTick
+        result=true;
+    end
 end
+
 end
 
 function boundary=GetBoundary(p)
@@ -227,14 +197,53 @@ end
 function next=MotionModel(tick)
 %隣接ノードへの移動モデル これを変えることでロボットの移動を指定できる
 % [dx dy dyaw cost]
-next=[1 0    0/tick 1
-      1 1   45/tick 2
-      2 1   45/tick 2
-      1 -1  -45/tick 1
-      2 -1  -45/tick 1
-      -1 0   0/tick 3
-      -1 1  45/tick 4
-      -1 -1 -45/tick 4];
+% next=[1 0    0/tick 1
+%       1 1   45/tick 2
+%       1 -1  -45/tick 2
+%       -1 0   0/tick 3
+%       -1 1  45/tick 4
+%       -1 -1 -45/tick 4];
+
+movedis=1;
+dangle=-30:15:30;
+rad=toRadian(dangle);
+next=[];
+for i=1:length(rad)
+    next=[next;[movedis*cos(rad(i)) movedis*sin(rad(i)) -dangle(i)/tick 1]];
+end
+
+end
+
+function obstacle=GetParkingLotObstacle(obstacle)
+%駐車場型の障害物マップを取得する関数
+
+%乱数で障害物を作成
+ob=[1 6;
+    2 6;
+    3 6;
+    4 6;
+    5 6;
+    6 6;
+    7 6;
+    8 6;
+    2 7;
+    2 8;
+    4 7;
+    4 8;
+    6 7;
+    6 8;
+    8 7;
+    8 8];
+obstacle=[obstacle;ob];
+
+end
+
+function [minCostN,minInd]=GetMinCostNode(open)
+%openなノードの中で最小コストノードを取得
+[Y,I] = sort(open(:,4));
+open=open(I,:);
+minInd=I(1);
+minCostN=open(1,:);
 end
 
 function path=GetPath(close,start)
@@ -309,6 +318,10 @@ function radian = toRadian(degree)
 radian = degree/180*pi;
 end
     
+function deg = toDegree(radian)
+% radian to deg
+deg = radian*180/pi;
+end
 
 
 

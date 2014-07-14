@@ -66,7 +66,7 @@ Rsigma=diag([1.5 1.5 toRadian(3) 0.05]).^2;%[x y z yaw v]
 PEst = eye(4);
  
 tic;
-
+%movcount=0;
 % Main loop
 for i=1 : nSteps
     time = time + dt;
@@ -89,6 +89,15 @@ for i=1 : nSteps
     xEst = xPred + K*y;
     PEst = (eye(size(xEst,1)) - K*H)*PPred;
     
+    % Simulation Result
+    result.time=[result.time; time];
+    result.xTrue=[result.xTrue; xTrue'];
+    result.xd=[result.xd; xd'];
+    result.xEst=[result.xEst;xEst'];
+    result.z=[result.z; z'];
+    result.PEst=[result.PEst; diag(PEst)'];
+    result.u=[result.u; u'];
+    
     %Animation (remove some flames)
     if rem(i,5)==0
         %hold off;
@@ -100,18 +109,13 @@ for i=1 : nSteps
         axis equal;
         grid on;
         drawnow;
-    end
-    
-    % Simulation Result
-    result.time=[result.time; time];
-    result.xTrue=[result.xTrue; xTrue'];
-    result.xd=[result.xd; xd'];
-    result.xEst=[result.xEst;xEst'];
-    result.z=[result.z; z'];
-    result.PEst=[result.PEst; diag(PEst)'];
-    result.u=[result.u; u'];
+        %movcount=movcount+1;
+        %mov(movcount) = getframe(gcf);% アニメーションのフレームをゲットする
+    end 
 end
 toc
+%アニメーション保存
+%movie2avi(mov,'movie.avi');
  
 DrawGraph(result);
 

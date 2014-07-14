@@ -74,6 +74,7 @@ px=repmat(xEst,1,NP);%パーティクル格納変数
 pw=zeros(1,NP)+1/NP;%重み変数
  
 tic;
+%movcount=0;
 % Main loop
 for i=1 : nSteps
     time = time + dt;
@@ -104,6 +105,13 @@ for i=1 : nSteps
     [px,pw]=Resampling(px,pw,NTh,NP);%リサンプリング
     xEst=px*pw';%最終推定値は期待値
     
+    % Simulation Result
+    result.time=[result.time; time];
+    result.xTrue=[result.xTrue; xTrue'];
+    result.xd=[result.xd; xd'];
+    result.xEst=[result.xEst;xEst'];
+    result.u=[result.u; u'];
+    
     %Animation (remove some flames)
     if rem(i,5)==0 
         hold off;
@@ -126,17 +134,17 @@ for i=1 : nSteps
         axis equal;
         grid on;
         drawnow;
+        %動画を保存する場合
+        %movcount=movcount+1;
+        %mov(movcount) = getframe(gcf);% アニメーションのフレームをゲットする
     end
-    
-    % Simulation Result
-    result.time=[result.time; time];
-    result.xTrue=[result.xTrue; xTrue'];
-    result.xd=[result.xd; xd'];
-    result.xEst=[result.xEst;xEst'];
-    result.u=[result.u; u'];
+   
 end
 toc
- 
+
+%アニメーション保存
+%movie2avi(mov,'movie.avi');
+
 DrawGraph(result);
 
 function [px,pw]=Resampling(px,pw,NTh,NP)

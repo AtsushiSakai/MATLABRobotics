@@ -49,7 +49,7 @@ area=[-1 11 -1 11];%シミュレーションエリアの広さ [xmin xmax ymin ymax]
 %シミュレーション結果
 result.x=[];
 tic;
-
+%movcount=0;
 % Main loop
 for i=1:5000
     %DWAによる入力値の計算
@@ -81,9 +81,13 @@ for i=1:5000
     end
     axis(area);
     grid on;
-    drawnow; 
+    drawnow;
+    %movcount=movcount+1;
+    %mov(movcount) = getframe(gcf);% アニメーションのフレームをゲットする
 end
 toc
+%movie2avi(mov,'movie.avi');
+ 
 
 function [u,trajDB]=DynamicWindowApproach(x,model,goal,evalParam,ob,R)
 %DWAによる入力値の計算をする関数

@@ -79,7 +79,7 @@ end
 gamma=sqrt(n+lamda);
 
 PEst = eye(4);
- 
+%movcount=0;
 tic;
 % Main loop
 for i=1 : nSteps
@@ -107,6 +107,15 @@ for i=1 : nSteps
     xEst = xPred + K*y;
     PEst=PPred-K*St*K';
     
+    % Simulation Result
+    result.time=[result.time; time];
+    result.xTrue=[result.xTrue; xTrue'];
+    result.xd=[result.xd; xd'];
+    result.xEst=[result.xEst;xEst'];
+    result.z=[result.z; z'];
+    result.PEst=[result.PEst; diag(PEst)'];
+    result.u=[result.u; u'];
+    
     %Animation (remove some flames)
     if rem(i,5)==0 
         plot(xTrue(1),xTrue(2),'.b');hold on;
@@ -117,20 +126,20 @@ for i=1 : nSteps
         axis equal;
         grid on;
         drawnow;
+        %movcount=movcount+1;
+        %mov(movcount) = getframe(gcf);% アニメーションのフレームをゲットする
     end
     
-    % Simulation Result
-    result.time=[result.time; time];
-    result.xTrue=[result.xTrue; xTrue'];
-    result.xd=[result.xd; xd'];
-    result.xEst=[result.xEst;xEst'];
-    result.z=[result.z; z'];
-    result.PEst=[result.PEst; diag(PEst)'];
-    result.u=[result.u; u'];
+    
 end
 toc
+
+%アニメーション保存
+%movie2avi(mov,'movie.avi');
  
 DrawGraph(result);
+
+
 
 function ShowErrorEllipse(xEst,PEst)
 %誤差分散円を計算し、表示する関数

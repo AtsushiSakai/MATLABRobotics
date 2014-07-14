@@ -2,7 +2,7 @@
 %
 % File : EMAlgorithmSample.m
 %
-% Discription : Sample code for estimate probablistic parameters 
+% Discription : Sample code to estimate probablistic parameters 
 %               with EM algorithm.
 %
 % Environment : Matlab
