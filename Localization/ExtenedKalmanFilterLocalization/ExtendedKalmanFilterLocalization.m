@@ -11,9 +11,8 @@
 %
 % Copyright (c): 2014 Atsushi Sakai
 %
-% License : Modified BSD Software License Agreement
+% License : GPL Software License Agreement
 % -------------------------------------------------------------------------
- 
  
 function [] = ExtendedKalmanFilterLocalization()
  
@@ -77,8 +76,8 @@ for i=1 : nSteps
     
     % ------ Kalman Filter --------
     % Predict
-    F=jacobF(xEst, u);
     xPred = f(xEst, u);
+    F=jacobF(xPred, u);
     PPred= F*PEst*F' + Q;
     
     % Update
@@ -155,15 +154,12 @@ plot(x(1,:)+xEst(1),x(2,:)+xEst(2))
 
 function x = f(x, u)
 % Motion Model
-
 global dt;
- 
  
 F = [1 0 0 0
     0 1 0 0
     0 0 1 0
     0 0 0 0];
- 
  
 B = [
     dt*cos(x(3)) 0
@@ -171,12 +167,10 @@ B = [
     0 dt
     1 0];
  
- 
 x= F*x+B*u;
  
 function jF = jacobF(x, u)
 % Jacobian of Motion Model
-
 global dt;
  
 jF=[
@@ -245,6 +239,7 @@ grid on;
 axis equal;
 
 function angle=Pi2Pi(angle)
+%ロボットの角度を-pi~piの範囲に補正する関数
 angle = mod(angle, 2*pi);
 
 i = find(angle>pi);

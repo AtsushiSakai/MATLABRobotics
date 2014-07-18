@@ -176,6 +176,9 @@ indY=GetXYIndex(y,gm.HEIGHT,gm.RESO)+1;%y軸方向のindex
 ind=GetDBIndexFromIndex(indX,indY,gm);%DBのインデックス
 
 function ind=GetDBIndexFromIndex(indX,indY,gm)
+%データベクトルのインデックスを計算する関数
+%-1は無効インデックスを表す。
+
 %全体インデックス
 ind=gm.WIDTH*indX+indY;
 %X方向のインデックスチェック
