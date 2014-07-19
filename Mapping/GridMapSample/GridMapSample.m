@@ -108,12 +108,11 @@ function gm=LikelihoodUpdate(gm,z)
 %尤度場のGridMapを作る関数
 
 for ig=1:(gm.nGrid-1)
-    gxy=GetXYFromDataIndex(ig,gm);
+    gxy=GetXYFromDataIndex(ig,gm);%それぞれのグリッドxyインデックスを取得
     zxy=FindNearest(gxy,z);%最近傍の観測値の取得
     p=GaussLikelihood(gxy,zxy);%ガウシアン尤度の計算
     gm.data(ig)=p*10;%グリッドへの格納
 end
-%gm.data=Normalize(gm.data);%正規化
 
 function p=GaussLikelihood(gxy,zxy)
 %ガウス分布の尤度を計算する関数
