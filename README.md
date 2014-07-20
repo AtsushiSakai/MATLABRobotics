@@ -81,6 +81,13 @@ Iterative Closest Point (ICP) Algorithmを使用したScanデータに基づく�
 
 ICPアルゴリズムを利用したSLAM用MATLABサンプルプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20140617/1402971928
 
+##EKF SLAM
+![EKFSLAM](http://f.st-hatena.com/images/fotolife/m/meison_amsl/20140720/20140720215913.png)
+
+拡張カルマンフィルタを使用した特徴ベースのSLAMのサンプルプログラムです。
+
+EKFによるSLAMのためのMATLABサンプルプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20140720
+
 #Machine Learning
 機械学習やパターン認識のサンプルコード用フォルダです。
 
