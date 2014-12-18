@@ -98,3 +98,9 @@ EMアルゴリズムによる混合正規分布のパラメータ学習のサン
 
 EMアルゴリズムによる確率分布学習のMATLABプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20140710/1404997476
 
+## Nelder Mead
+![NelderMead](http://cdn-ak.f.st-hatena.com/images/fotolife/m/meison_amsl/20141216/20141216222923.png)
+
+Nelder Meadアルゴリズムによる非線形最適化のサンプルコードです。
+
+Nelder-Mead法(シンプレックス法)による非線形最適化MATLABサンプルプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20141217/1418824777
