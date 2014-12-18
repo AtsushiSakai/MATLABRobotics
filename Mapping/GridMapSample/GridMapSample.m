@@ -91,7 +91,7 @@ for ia=(0-angleTick/2):angleTick:(360+angleTick/2)
         if angle<0 %[0 360]“x‚É•ÏŠ·
             angle=angle+2*pi;
         end
-        if ray.minAngle<=rad2deg(angle) && ray.maxAngle>=rad2deg(angle)
+        if ray.minAngle<=toDegree(angle) && ray.maxAngle>=toDegree(angle)
             grid=[grid;[range,angle,gxy,ig]];
         end
     end
