@@ -104,3 +104,11 @@ EMアルゴリズムによる確率分布学習のMATLABプログラム - MY ENI
 Nelder Meadアルゴリズムによる非線形最適化のサンプルコードです。
 
 Nelder-Mead法(シンプレックス法)による非線形最適化MATLABサンプルプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20141217/1418824777
+
+## Steepest Descent Method
+![Steepest](http://f.st-hatena.com/images/fotolife/m/meison_amsl/20141221/20141221192623.png)
+
+最急降下法による非線形最適化のサンプルコードです。
+
+最急降下法による非線形最適化MATLABサンプルプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20141221/1419163905
+
