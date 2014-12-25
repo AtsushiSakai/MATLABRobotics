@@ -112,3 +112,9 @@ Nelder-Mead法(シンプレックス法)による非線形最適化MATLABサン�
 
 最急降下法による非線形最適化MATLABサンプルプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20141221/1419163905
 
+## Conjugate Gradient Method
+![Conjugate](http://f.st-hatena.com/images/fotolife/m/meison_amsl/20141224/20141224223250.png)
+
+共役勾配法による非線形最適化のサンプルコードです。
+
+共役勾配法による非線形最適化MATLABサンプルプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20141225/1419481084
