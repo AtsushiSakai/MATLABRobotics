@@ -2,7 +2,7 @@
 %
 % File : NelderMead.m
 %
-% Discription : Non-Linear optimizion with Nelder-Mead Method (
+% Discription : Non-Linear optimizion with Nelder-Mead Method
 %
 % Reference: http://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method
 % 
