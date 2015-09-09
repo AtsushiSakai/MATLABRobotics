@@ -176,8 +176,8 @@ global dt;
 jF=[
     1 0 0 0
     0 1 0 0
-    -dt*u(1)*sin(x(3)) dt*cos(x(3)) 1 0
-    dt*u(1)*cos(x(3)) dt*sin(x(3)) 0 1];
+    -dt*u(1)*sin(x(3)) dt*u(1)*cos(x(3)) 1 0
+     dt*cos(x(3)) dt*sin(x(3)) 0 1];
 
 function z = h(x)
 %Observation Model
