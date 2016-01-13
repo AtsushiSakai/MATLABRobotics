@@ -20,7 +20,7 @@ clear all;
 
 %正規分布のパラメータ1
 muTrue1=5;
-siTrue1=3;
+siTrue1=2;
 nData1=300;
 
 %正規分布パラメータからサンプルデータを作成
@@ -34,51 +34,99 @@ nData2=300;
 %正規分布パラメータからサンプルデータを作成
 r2 = muTrue2 + siTrue2.*randn(nData2,1);
 
-r=[r1;r2];
+data=[r1;r2];%元データ
+
+%パラメータ初期値
+mu=[5 15];%平均値の初期値
+sigma=[std(data) std(data)];%標準偏差の初期値 データから計算
+z=0.5;%混合率
 
 %EMAlgorithmによる正規分布パラメータの推定
-%パラメータ初期値
-si1=10;
-si2=10;
-z=[0.5 0.5];%重み行列
-
-for i=1:10
-    
-    %モデルの当てはめて期待値の計算 Expectation
-    e1=[];
-    e2=[];
-    for ip=1:length(r)
-        p1=Gauss(r(ip),muTrue1,si1);
-        p2=Gauss(r(ip),muTrue2,si2);
-        e1=[e1;p1/(p1+p2)];
-        e2=[e2;p2/(p1+p2)];
-    end
-    
-    %期待値の最大化 Maximization
-    sumz=sum(z);
-    z(1)=sum(e1)/sumz;
-    z(2)=sum(e2)/sumz;
-    
-    si1=UpdateSigma(e1,r,muTrue1);
-    si2=UpdateSigma(e2,r,muTrue2);
-    
+oddsResults=[];
+for i=1:100
+    burdenRates=EStep(data,mu,sigma,z);
+    [mu,sigma,z]=MStep(data, burdenRates);
+    odds = CalcLogOdds(data,mu,sigma,z);
+    oddsResults=[oddsResults odds];
 end
 
-disp('True STD');
-[siTrue1 siTrue2]
+figure(1)
+plot(oddsResults)
+grid on;
+
+figure(2)
+
+disp('Estimated Mean');
+mu
+disp('True Mean');
+[muTrue1 muTrue2]
+
 disp('Estimated STD');
-[si1 si2]
+sigma
+disp('True Std');
+[siTrue1 siTrue2]
+
 disp('Weight Vector');
 z
 
-hist(r,20);hold on;
+[f,x]=hist(data,10);hold off;
+bar(x,f/trapz(x,f));hold on;
+
 est=[];
-nData=nData1+nData2;
-for id=-5:0.1:15
-    est=[est; [id z*[Gauss(id,muTrue1,si1);Gauss(id,muTrue2,si2)]*nData]];
+for id=0:0.05:max(data)
+    est=[est; [id (1-z)*Gauss(id,mu(1),sigma(1))+z*Gauss(id,mu(2),sigma(2))]];
 end
+
 plot(est(:,1),est(:,2),'-r');hold on;
 grid on;
+
+
+function [mu,sigma,z]=MStep(data, burdenRates)
+% MStepの計算
+
+%平均の計算
+mu=[0 0];
+sumb1=sum(1-burdenRates);
+sumby1=(1-burdenRates)*data;
+
+mu(1)=sumby1/sumb1;
+
+sumb2=sum(burdenRates);
+sumby2=(burdenRates)*data;
+
+mu(2)=sumby2/sumb2;
+
+%標準偏差の計算
+sigma=[0 0];
+sumbyu1=(1-burdenRates)*((data-mu(1)).^2);
+sigma(1)=sqrt(sumbyu1/sumb1);
+
+sumbyu2=burdenRates*((data-mu(2)).^2);
+sigma(2)=sqrt(sumbyu2/sumb2);
+
+z=sum(burdenRates./length(data(:)));
+
+
+function burdenRates=EStep(data,mu,sigma,z)
+%負担率を計算する関数
+burdenRates=[];%負担率
+
+for i=1:length(data(:,1))
+    
+    %混合確率の計算
+    n = z * Gauss(data(i), mu(2), sigma(2));
+    d = (1 - z) * Gauss(data(i), mu(1), sigma(1)) + n;
+    burdenRates=[burdenRates n/d];
+end
+
+function odds = CalcLogOdds(data,mu,sigma,z)
+%対数オッズを計算する関数
+odds=0;
+for i=1:length(data)
+    g1=Gauss(data(i),mu(1),sigma(1));
+    g2=Gauss(data(i),mu(2),sigma(2));
+    odds=odds+log((1-z)*g1+z*g2);
+end
 
 function si=UpdateSigma(e,r,mu)
 %標準偏差を更新する関数
