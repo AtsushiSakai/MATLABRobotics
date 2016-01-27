@@ -43,7 +43,7 @@ global dt; dt=0.1;%刻み時間[s]
 Kinematic=[1.0,toRadian(20.0),0.2,toRadian(50.0),0.01,toRadian(1)];
 
 %評価関数のパラメータ [heading,dist,velocity,predictDT]
-evalParam=[0.05,0.2,0.1,3.0];
+evalParam=[0.1,0.2,0.1,3.0];
 area=[-1 11 -1 11];%シミュレーションエリアの広さ [xmin xmax ymin ymax]
 
 %シミュレーション結果
@@ -85,6 +85,8 @@ for i=1:5000
     %movcount=movcount+1;
     %mov(movcount) = getframe(gcf);% アニメーションのフレームをゲットする
 end
+figure(2)
+plot(result.x(:,4));
 toc
 %movie2avi(mov,'movie.avi');
  
@@ -94,7 +96,6 @@ function [u,trajDB]=DynamicWindowApproach(x,model,goal,evalParam,ob,R)
 
 %Dynamic Window[vmin,vmax,ωmin,ωmax]の作成
 Vr=CalcDynamicWindow(x,model);
-
 %評価関数の計算
 [evalDB,trajDB]=Evaluation(x,Vr,goal,ob,R,model,evalParam);
 
@@ -120,6 +121,7 @@ function [evalDB,trajDB]=Evaluation(x,Vr,goal,ob,R,model,evalParam)
 %各パスに対して評価値を計算する関数
 evalDB=[];
 trajDB=[];
+
 for vt=Vr(1):model(5):Vr(2)
     for ot=Vr(3):model(6):Vr(4)
         %軌跡の推定
@@ -128,12 +130,9 @@ for vt=Vr(1):model(5):Vr(2)
         heading=CalcHeadingEval(xt,goal);
         dist=CalcDistEval(xt,ob,R);
         vel=abs(vt);
-        %制動距離の計算
-        stopDist=CalcBreakingDist(vel,model);
-        if dist>stopDist %衝突する場合はDBに追加しない
-            evalDB=[evalDB;[vt ot heading dist vel]];
-            trajDB=[trajDB;traj];
-        end
+        
+        evalDB=[evalDB;[vt ot heading dist vel]];
+        trajDB=[trajDB;traj];     
     end
 end
 
@@ -173,17 +172,12 @@ end
 function dist=CalcDistEval(x,ob,R)
 %障害物との距離評価値を計算する関数
 
-dist=100;
+dist=2;
 for io=1:length(ob(:,1))
     disttmp=norm(ob(io,:)-x(1:2)')-R;%パスの位置と障害物とのノルム誤差を計算
     if dist>disttmp%最小値を見つける
         dist=disttmp;
     end
-end
-
-%二倍以上遠い時は評価値をサチらせる
-if dist>=2*R
-    dist=2*R;
 end
 
 function heading=CalcHeadingEval(x,goal)
@@ -212,6 +206,7 @@ Vd=[x(4)-model(3)*dt x(4)+model(3)*dt x(5)-model(4)*dt x(5)+model(4)*dt];
 %最終的なDynamic Windowの計算
 Vtmp=[Vs;Vd];
 Vr=[max(Vtmp(:,1)) min(Vtmp(:,2)) max(Vtmp(:,3)) min(Vtmp(:,4))];
+%[vmin,vmax,ωmin,ωmax]
 
 function x = f(x, u)
 % Motion Model
