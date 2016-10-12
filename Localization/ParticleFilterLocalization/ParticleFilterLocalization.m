@@ -48,14 +48,14 @@ xTrue=xEst;
 xd=xTrue;
  
 % Covariance Matrix for predict
-Q=diag([0.2 0.2 toRadian(10)]).^2;
+Q=diag([0.1 0.1 toRadian(3)]).^2;
  
 % Covariance Matrix for observation
 R=diag([1]).^2;%[range [m]
 
 % Simulation parameter
 global Qsigma
-Qsigma=diag([0.1 toRadian(20)]).^2;
+Qsigma=diag([0.1 toRadian(5)]).^2;
  
 global Rsigma
 Rsigma=diag([0.1]).^2;
@@ -89,13 +89,13 @@ for i=1 : nSteps
         w=pw(ip);
         
         % Dead Reckoning and random sampling
-        x=f(x, u)+Q*randn(3,1);
+        x=f(x, u)+sqrt(Q)*randn(3,1);
     
         % Calc Inportance Weight
         for iz=1:length(z(:,1))
             pz=norm(x(1:2)'-z(iz,2:3));
             dz=pz-z(iz,1);
-            w=w*Gauss(dz,0,R);
+            w=w*Gauss(dz,0,sqrt(R));
         end
         px(:,ip)=x;%Ši”[
         pw(ip)=w;
@@ -212,14 +212,14 @@ global Qsigma;
 global Rsigma;
  
 x=f(x, u);% Ground Truth
-u=u+Qsigma*randn(2,1);%add Process Noise
+u=u+sqrt(Qsigma)*randn(2,1);%add Process Noise
 xd=f(xd, u);% Dead Reckoning
 %Simulate Observation
 z=[];
 for iz=1:length(RFID(:,1))
     d=norm(RFID(iz,:)-x(1:2)');
     if d<MAX_RANGE %ŠÏ‘ª”ÍˆÍ“à
-        z=[z;[d+Rsigma*randn(1,1) RFID(iz,:)]];
+        z=[z;[d+sqrt(Rsigma)*randn(1,1) RFID(iz,:)]];
     end
 end
 
