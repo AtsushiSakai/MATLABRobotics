@@ -166,6 +166,6 @@ MIT
 
 # Author
 
-Atsushi Sakai (@Atsushi_twi)
+Atsushi Sakai ([@Atsushi_twi](https://twitter.com/Atsushi_twi))
 
 
