@@ -1,7 +1,7 @@
 MATLABRobotics
 ==============
 
-MATLAB Sample Codes for Robotics
+MATLAB sample codes for mobile robot navigation.
 
 # Localization
 
@@ -10,7 +10,7 @@ Sample codes for localization.
 ##ExtenedKalmanFilterLocalization
 ![EKF](http://f.st-hatena.com/images/fotolife/m/meison_amsl/20130413/20130413125635.jpg)
 
-A sample code of Localization with Extended Kalman Filter
+A sample code of localization with Extended Kalman Filter
 
 Documents in Japanease:
 
@@ -19,7 +19,7 @@ Documents in Japanease:
 ##UnscentedKalmanFilterLocalization
 ![UKF](http://f.st-hatena.com/images/fotolife/m/meison_amsl/20140614/20140614163514.png)
 
-A sample code of Localization with Unscented Kalman Filter (Sigma points Kalman Filter)
+A sample code of localization with Unscented Kalman Filter (Sigma points Kalman Filter)
 
 Documents in Japanease:
 
@@ -28,7 +28,7 @@ Unscentedカルマンフィルタを使用した自己位置推定MATLABサン�
 ##ParticleFilterLocalization
 ![PF](http://f.st-hatena.com/images/fotolife/m/meison_amsl/20140628/20140628203642.png)
 
-A sample code of Localization with Particle Filter
+A sample code of localization with Particle Filter
 
 Documents in Japanease:
 
@@ -100,7 +100,8 @@ Sample codes of Simultaneous Localization And Mapping(SLAM)
 ##ICP
 ![ICP](http://f.st-hatena.com/images/fotolife/m/meison_amsl/20140617/20140617112008.png)
 
-Iterative Closest Point (ICP) Algorithmを使用したScanデータに基づく相対移動量推定プログラムです。
+A sample code for relative movement estimation with Iterative closest point (ICP) algorithm.
+
 
 Documents in Japanease:
 
@@ -109,37 +110,62 @@ ICPアルゴリズムを利用したSLAM用MATLABサンプルプログラム - M
 ##EKF SLAM
 ![EKFSLAM](http://f.st-hatena.com/images/fotolife/m/meison_amsl/20140720/20140720215913.png)
 
-拡張カルマンフィルタを使用した特徴ベースのSLAMのサンプルプログラムです。
+A sample code for EKF SLAM based on feature points.
+
+
+Documents in Japanease:
 
 EKFによるSLAMのためのMATLABサンプルプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20140720
 
 #Machine Learning
-機械学習やパターン認識のサンプルコード用フォルダです。
+Sample codes for machine learning and pattern recognition.
 
 ## EM Algorithm
 ![EM](http://f.st-hatena.com/images/fotolife/m/meison_amsl/20140710/20140710202357.png)
 
-EMアルゴリズムによる混合正規分布のパラメータ学習のサンプルコードです。
+A sample code for parameter learning on mixture gaussian model with EM algorithm
+
+
+Documents in Japanease:
 
 EMアルゴリズムによる確率分布学習のMATLABプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20140710/1404997476
 
 ## Nelder Mead
 ![NelderMead](http://cdn-ak.f.st-hatena.com/images/fotolife/m/meison_amsl/20141216/20141216222923.png)
 
-Nelder Meadアルゴリズムによる非線形最適化のサンプルコードです。
+A sample code for nonlinear optimization with Nelder-mead algorithm.
+
+
+Documents in Japanease:
 
 Nelder-Mead法(シンプレックス法)による非線形最適化MATLABサンプルプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20141217/1418824777
 
 ## Steepest Descent Method
 ![Steepest](http://f.st-hatena.com/images/fotolife/m/meison_amsl/20141221/20141221192623.png)
 
-最急降下法による非線形最適化のサンプルコードです。
+A sample code for nonlinear optimization with steepest descent method.
+
+
+Documents in Japanease:
 
 最急降下法による非線形最適化MATLABサンプルプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20141221/1419163905
 
 ## Conjugate Gradient Method
 ![Conjugate](http://f.st-hatena.com/images/fotolife/m/meison_amsl/20141224/20141224223250.png)
 
-共役勾配法による非線形最適化のサンプルコードです。
+A sample code for nonlinear optimization with conjugate gradient method.
+
+
+Documents in Japanease:
 
 共役勾配法による非線形最適化MATLABサンプルプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20141225/1419481084
+
+# License 
+
+MIT
+
+# Author
+
+Atsushi Sakai (@Atsushi_twi)
+
+
