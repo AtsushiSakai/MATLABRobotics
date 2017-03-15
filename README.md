@@ -7,7 +7,7 @@ MATLAB sample codes for mobile robot navigation.
 
 Sample codes for localization.
 
-##ExtenedKalmanFilterLocalization
+## ExtenedKalmanFilterLocalization
 ![EKF](http://f.st-hatena.com/images/fotolife/m/meison_amsl/20130413/20130413125635.jpg)
 
 A sample code of localization with Extended Kalman Filter
@@ -16,7 +16,7 @@ Documents in Japanease:
 
 拡張カルマンフィルタを使用した自己位置推定MATLABサンプルプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20130413/1365826157
 
-##UnscentedKalmanFilterLocalization
+## UnscentedKalmanFilterLocalization
 ![UKF](http://f.st-hatena.com/images/fotolife/m/meison_amsl/20140614/20140614163514.png)
 
 A sample code of localization with Unscented Kalman Filter (Sigma points Kalman Filter)
@@ -25,7 +25,7 @@ Documents in Japanease:
 
 Unscentedカルマンフィルタを使用した自己位置推定MATLABサンプルプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20140614/1402731732
 
-##ParticleFilterLocalization
+## ParticleFilterLocalization
 ![PF](http://f.st-hatena.com/images/fotolife/m/meison_amsl/20140628/20140628203642.png)
 
 A sample code of localization with Particle Filter
@@ -34,11 +34,11 @@ Documents in Japanease:
 
 Particle Filterを使用した自己位置推定MATLABサンプルプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20140628/1403956852
 
-#Mapping
+# Mapping
 
 Sample codes for mapping.
 
-#GridMapSample
+# GridMapSample
 ![GridMap](http://f.st-hatena.com/images/fotolife/m/meison_amsl/20140714/20140714220039.png)
 
 A sample code for mapping with grid map
@@ -48,11 +48,11 @@ Documents in Japanease:
 自律移動ロボットのためのグリッドマップ作成MATLABサンプルプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20140714/1405343128
 
 
-#PathPlanning
+# PathPlanning
 
 Sample codes for path planning
 
-##Dijkstra
+## Dijkstra
 ![Dijkstra](http://f.st-hatena.com/images/fotolife/m/meison_amsl/20140502/20140502120424.png)
 
 A sample code for path planning with Dijkstra method.
@@ -64,7 +64,7 @@ Documents in Japanease:
 
 ダイクストラ法による最短経路探索MATLABプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20140502/1399001915
 
-##AStar
+## AStar
 ![AStar](http://f.st-hatena.com/images/fotolife/m/meison_amsl/20140503/20140503100405.png)
 
 A sample code for path planning with A star.
@@ -74,7 +74,7 @@ Documents in Japanease:
 
 A*による最短経路探索MATLABプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20140503/1399080847
 
-##PathSmoothing
+## PathSmoothing
 ![PathSmoothing](http://f.st-hatena.com/images/fotolife/m/meison_amsl/20140510/20140510123208.png)
 
 A sample code for path smoothing with gradient method
@@ -94,10 +94,10 @@ Documents in Japanease:
 
 Dynamic Window ApproachのMATLAB サンプルプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20140624/1403618922
 
-#SLAM
+# SLAM
 Sample codes of Simultaneous Localization And Mapping(SLAM)
 
-##ICP
+## ICP
 ![ICP](http://f.st-hatena.com/images/fotolife/m/meison_amsl/20140617/20140617112008.png)
 
 A sample code for relative movement estimation with Iterative closest point (ICP) algorithm.
@@ -107,7 +107,7 @@ Documents in Japanease:
 
 ICPアルゴリズムを利用したSLAM用MATLABサンプルプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20140617/1402971928
 
-##EKF SLAM
+## EKF SLAM
 ![EKFSLAM](http://f.st-hatena.com/images/fotolife/m/meison_amsl/20140720/20140720215913.png)
 
 A sample code for EKF SLAM based on feature points.
@@ -117,7 +117,7 @@ Documents in Japanease:
 
 EKFによるSLAMのためのMATLABサンプルプログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20140720
 
-#Machine Learning
+# Machine Learning
 Sample codes for machine learning and pattern recognition.
 
 ## EM Algorithm
