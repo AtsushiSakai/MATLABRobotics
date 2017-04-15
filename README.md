@@ -84,7 +84,7 @@ Documents in Japanease:
 
 MATLABよる経路平滑化(Path Smoothing)プログラム - MY ENIGMA http://d.hatena.ne.jp/meison_amsl/20140510/1399694663
 
-##Dynamic Window Approach
+## Dynamic Window Approach
 ![Dynamic Window Approach](http://f.st-hatena.com/images/fotolife/m/meison_amsl/20140624/20140624230043.png)
 
 A sample code for local path planning with dyamic window approach.
