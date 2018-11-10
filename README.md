@@ -3,6 +3,12 @@ MATLABRobotics
 
 MATLAB sample codes for mobile robot navigation.
 
+=== I'm sorry this project is no longer active. ===
+
+If you are interested in robotics algorithms, this project might help you:
+
+- [AtsushiSakai/PythonRobotics: Python sample codes for robotics algorithms\.](https://github.com/AtsushiSakai/PythonRobotics)
+
 # Localization
 
 Sample codes for localization.
